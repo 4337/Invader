@@ -1,4 +1,4 @@
-<body>
+<body style="background-color:white;">
 <img src="./Static/minjon.png" style="width:230px;height:230px"/>
 <br/>
 <pre>

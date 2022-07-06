@@ -89,7 +89,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
    Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.  
   </li>
   <li>
-   Świat nieznośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
+   Świat nie znośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
   </li>
 </ul>
 

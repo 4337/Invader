@@ -83,7 +83,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 <ul style="list-style-type:circle">
   <li>
    Po odłączeniu debuggera istnieje duże prawdopodobieństwo, że atakowany proces zakończy działanie z błędem.<br/>
-   Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzoukierunkowanych ataków, <br/>
+   Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzo ukierunkowanych ataków, <br/>
    a czasami może być nie możliwe. <br/>
    Tak, więc aktualnie Invader nadaje się lepiej do tworzenia i atakowania procesów "Zombie" niż do atakowania działających w systemie normalnych aplikacji.<br/>
    Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.  

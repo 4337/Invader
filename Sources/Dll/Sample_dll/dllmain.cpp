@@ -3,7 +3,7 @@
 
 INT is_32bit() {
 
-    BOOL wow;
+    BOOL wow = FALSE;
     if (IsWow64Process(GetCurrentProcess(), &wow) == FALSE) {
         return -1;
     }
@@ -21,7 +21,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 {
     INT is_32bit_app = is_32bit();
 
-    if (is_32bit_app != 1) {   /*No x64 subsystem, */
+    if (is_32bit_app == 1) {   /*No x64 subsystem, */
        //LdrLoadDll(user32.dll)
        //LdrGetProc(MessageBox)
        //Call messageBOX 

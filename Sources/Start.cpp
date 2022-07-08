@@ -168,7 +168,7 @@ int _tmain(int argc, TCHAR** argv)
 
 				Invader::Process proc;
 
-				int ret = proc.create(app_params.app_path().c_str(), 0);
+				int ret = proc.create(app_params.app_path().c_str(), 0);//CREATE_SUSPENDED); //0);
 				if (ret != 1) {
 					_tprintf(_T("[Invader::Process::create]. Process creation fail error:(0x%x) result:%d\r\n"), GetLastError(), ret);
 					return -1;

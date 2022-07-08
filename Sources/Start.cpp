@@ -168,7 +168,7 @@ int _tmain(int argc, TCHAR** argv)
 
 				Invader::Process proc;
 
-				int ret = proc.create(app_params.app_path().c_str(), 0);//CREATE_SUSPENDED); //0);
+				int ret = proc.create(app_params.app_path().c_str(), 0); // CREATE_SUSPENDED); //0);
 				if (ret != 1) {
 					_tprintf(_T("[Invader::Process::create]. Process creation fail error:(0x%x) result:%d\r\n"), GetLastError(), ret);
 					return -1;
@@ -203,7 +203,7 @@ int _tmain(int argc, TCHAR** argv)
 					_tprintf(_T("[Invader::Debugger]: debug fail err:0x%x.\r\n"),GetLastError());
 				} else {
 
-					
+					//ResumeThread(suspend_thread);
 					if (dbg.wait()) {
 
 						_tprintf(_T("[Invader::Debugger]: application break.\r\n"));
@@ -243,7 +243,6 @@ int _tmain(int argc, TCHAR** argv)
 
 								_tprintf(_T("[Invader::Invader]. Code injection done.\r\n"));
 
-								//ResumeThread(suspend_thread);
 								dbg.ready();
 
 								if (dbg.wait()) {

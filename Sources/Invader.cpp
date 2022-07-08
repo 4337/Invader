@@ -287,8 +287,9 @@ Invader::Debugger::_loop(BOOL kill) noexcept {
 
 		  switch (event.dwDebugEventCode) {
 		  case EXCEPTION_DEBUG_EVENT:
-
+			  //_tprintf(_T("EXCEPTION CODE : 0x%x add : 0x%p\r\n"), event.u.Exception.ExceptionRecord.ExceptionCode, event.u.Exception.ExceptionRecord.ExceptionAddress);
 			  switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
+		
 			      case EXCEPTION_BREAKPOINT:
 
 					  prot_.lock();

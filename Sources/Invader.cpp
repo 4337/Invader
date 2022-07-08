@@ -380,9 +380,9 @@ Invader::Invader::remote_addresses(const void* proc_addr) noexcept {
 		return false;
 	}
 
-	if (DbgBreakPoint_proc != proc_addr) { //"DbgBreakPointWithStatus" 
-		DbgBreakPoint_proc = reinterpret_cast<char*>(const_cast<void*>(proc_addr));    //little bit lame -> NtQueryProcessInformation
-	}
+	//if (DbgBreakPoint_proc != proc_addr) { //"DbgBreakPointWithStatus"  //trzeba zmieniæ z bezwzglêdnego na przesuniêcie 
+		//DbgBreakPoint_proc = reinterpret_cast<char*>(const_cast<void*>(proc_addr));    //little bit lame -> NtQueryProcessInformation
+	//}
 
 	INT64 DbgBreakPoint_offset = DbgBreakPoint_proc - reinterpret_cast<char*>(ntdll);
 	Remote_ntdll_base_addr = reinterpret_cast<void*>(reinterpret_cast<INT64>(proc_addr) - DbgBreakPoint_offset);

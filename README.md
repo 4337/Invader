@@ -36,7 +36,7 @@ jego wykonanie zatrzymuje się generując wyjątek 0x80000003 (Exception Breakpo
 Na poziomie implementacyjnym, w systemie Windows i aplikacjach trybu użytkownika (ring-3) wykonanie kodu w procesie, <br/>
 do którego podłączany jest debugger trafia do jednej z dwóch funkcji:<br/>
 <br/>
-DbgBreakPointWithStatus - jeśli proces jest w we wczesnym stadium wykonywania (został uruchomiony przed chwilą) - lub<br/>
+DbgBreakPointWithStatus - jeśli proces jest w we wczesnym stadium wykonywania (został uruchomiony przed chwilą, lub jest w trybie SUSPEND) - lub<br/>
 DbgBreakPoint - jeśli proces działa dłuższą chwilę.<br/>
 <br/>
 Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EXCEPTION_BREAKPOINT), które w przypadku, <br/>

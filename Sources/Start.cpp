@@ -174,6 +174,8 @@ int _tmain(int argc, TCHAR** argv)
 					return -1;
 				}
 
+				//HANDLE suspend_thread = proc.main_thread_handler();
+
 				_tprintf(_T("[_tmain::Invader::Process::create]. Process creation success.\r\n"
 					"[Process::pid]: %d hex(0x%x)\r\n"
 					"[Process::tid]: %d hex(0x%x)\r\n"
@@ -194,13 +196,16 @@ int _tmain(int argc, TCHAR** argv)
 				);
 
 				Invader::Debugger dbg(proc.pid());
+
 				dbg.debug(FALSE);
 
 				if (dbg.active() == FALSE) {
 					_tprintf(_T("[Invader::Debugger]: debug fail err:0x%x.\r\n"),GetLastError());
 				} else {
 
+					
 					if (dbg.wait()) {
+
 						_tprintf(_T("[Invader::Debugger]: application break.\r\n"));
 						Invader::Dbg_exception_info exc = dbg.except_info();
 						inv.remote_addresses(exc.addr);
@@ -238,6 +243,7 @@ int _tmain(int argc, TCHAR** argv)
 
 								_tprintf(_T("[Invader::Invader]. Code injection done.\r\n"));
 
+								//ResumeThread(suspend_thread);
 								dbg.ready();
 
 								if (dbg.wait()) {

@@ -71,6 +71,8 @@ Invader::Process::create(const string_t& path, DWORD flags) noexcept {
 		thread_hnd_ = proc_info.hThread;
 		pid_ = proc_info.dwProcessId;
 		tid_ = proc_info.dwThreadId;
+		ProcessIdToSessionId(pid_, &session_id_);
+		//...
 		if (!set_app_path()) {
 			return -1;
 		}

@@ -34,8 +34,8 @@ bool is_x64_bin(const string_t& file_path) noexcept {
 
 	std::ifstream file(file_path, std::ios_base::binary);
 	if (file.is_open()) {
-		unsigned char head[sizeof(IMAGE_NT_HEADERS64)];
-		file.read(reinterpret_cast<char*>(head), sizeof(IMAGE_NT_HEADERS64));
+		unsigned char head[sizeof(IMAGE_NT_HEADERS64) + sizeof(IMAGE_DOS_HEADER)];
+		file.read(reinterpret_cast<char*>(head), sizeof(IMAGE_NT_HEADERS64) +  sizeof(IMAGE_DOS_HEADER));
 		if (!file) {
 			ret = false;
 		} else {

@@ -33,7 +33,7 @@ VirtualProtectEx i WriteProcessMemory<br/>
 <br/>
 Kiedy podłączamy debugger do procesu to zależnie od stopnia, w jakim został utworzony taki proces,<br/>
 jego wykonanie zatrzymuje się generując wyjątek 0x80000003 (Exception Breakpoint).<br/> 
-Na poziomie implementacyjnym, w systemie Windows i aplikacjach trybu użytkownika (ring-3) wykonanie kodu w procesie, <br/>
+Na poziomie implementacyjnym, w systemie Windows i aplikacjach trybu użytkownika (ring-3) wykonanie kodu w procesie, 
 do którego podłączany jest debugger trafia do jednej z dwóch funkcji:<br/>
 <br/>
 DbgBreakPointWithStatus - jeśli proces jest w we wczesnym stadium wykonywania (został uruchomiony przed chwilą, jest w trybie SUSPEND) - lub<br/>

@@ -107,7 +107,6 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 Orginalna wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.<br/>
 	 Zawartość stosu nie powinna zostać zmieniona/uszkodzona w wyniku wykonania wstrzykniętego kodu, ponieważ to co robimy
 	 to w gruncie rzeczy zmiana zawartości (kodu) procedury (wariant Function Hjackingu), więc wszystko jest ułożone i wyrównane tak jak powinno być. <br/>
-	 Stos może zostać uszkodzony w wyniku przełączenia kontektu przy zarządzaniu wątkami.
 	 </li>
 	</ul>
   </li>

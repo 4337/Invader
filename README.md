@@ -39,9 +39,9 @@ do którego podłączany jest debugger trafia do jednej z dwóch funkcji:<br/>
 DbgBreakPointWithStatus - jeśli proces jest w we wczesnym stadium wykonywania (został uruchomiony przed chwilą, jest w trybie SUSPEND) - lub<br/>
 DbgBreakPoint - jeśli proces działa dłuższą chwilę.<br/>
 <br/>
-Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EXCEPTION_BREAKPOINT), które w przypadku, <br/>
+Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EXCEPTION_BREAKPOINT), które w przypadku, 
 kiedy do procesu podłączony jest debugger podobnie jak inne zdarzenia/wyjątki debuggowania będzie obsłużone przez debugger.<br/>
-Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka, <br/>
+Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka, 
 że ta pierwsza nie jest eksportowana przez bibliotekę ntdll.dll i trudno na jej podstawie obliczyć adres bazowy biblioteki ntdll.dll w sposób "mało hałaśliwy".<br/>
 Poza tym DbgBreakPointWithStatus zwraca wartość, a DbgBreakPoint nie.<br/>
 Kiedy w debuggowanej aplikacji występuje wyjątek, debugger otrzymuje na jego temat szereg informacji, <br/>

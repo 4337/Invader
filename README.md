@@ -111,6 +111,9 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
   <li>
    Świat nie znośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
   </li>
+  <li>
+   Relatywnie mało miejsca na kod.
+  </li>
 </ul>
 
 <h3> FAQ (które sobie zadawałem) </h3>

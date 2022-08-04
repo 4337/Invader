@@ -1,9 +1,3 @@
-/////////////////////
-/// Invader (x64 PoC)
-/// 06/07/2022 07:03
-/// Author: echo
-/////////////////////
-
 #include <Windows.h>
 #include <psapi.h>
 #include <thread>
@@ -11,235 +5,35 @@
 #include <tchar.h>
 #include <cstdio>
 
-#include "Environment.h"
-
+import Env;
 import Invader;
 
-bool 
-Invader::Process::set_app_path() noexcept {
-
-	TCHAR buff[MAX_PATH + 1];
-	if (GetModuleFileNameEx(proc_hnd_, NULL, &buff[0], MAX_PATH)) {
-		app_path_ = buff;
-		return true;
-	}
-	return false;
-
-}
-
-bool 
-Invader::Process::set_mitigation_info() noexcept {
-
-	if (!GetProcessMitigationPolicy(proc_hnd_, ProcessDynamicCodePolicy, &mitigations_.acg, sizeof(mitigations_.acg))) {
-		return false;
-	}
-	if (!GetProcessMitigationPolicy(proc_hnd_, ProcessSignaturePolicy, &mitigations_.cig, sizeof(mitigations_.cig))) {
-		return false;
-	}
-	mitigations_.init = true;
-
-	return true;
-}
-
-Invader::Process::Process(HANDLE proc, BOOL inherit) noexcept : thread_hnd_(NULL), proc_hnd_(proc), inherit_handle_(inherit) {
-
-
-	if (proc_hnd_ != NULL) {
-		set_app_path();
-		set_mitigation_info();
-		pid_ = GetProcessId(proc_hnd_);
-		tid_ = GetCurrentThreadId();
-		thread_hnd_ = OpenThread(THREAD_ALL_ACCESS, inherit, tid_);
-		ProcessIdToSessionId(pid_, &session_id_);
-	} else {
-		app_path_ = TEXT("");
-		pid_ = tid_ = session_id_ = -1;
-		mitigations_ = { false, {0}, {0} };
-	}
-
-}
-
-int
-Invader::Process::create(const string_t& path, DWORD flags) noexcept {
-
-	STARTUPINFO start_info = { 0 };
-	PROCESS_INFORMATION proc_info = { 0 };
-	start_info.dwFlags = STARTF_USESHOWWINDOW;
-	start_info.wShowWindow = SW_HIDE;
-	if (CreateProcess(path.c_str(), NULL, NULL, NULL, inherit_handle_, flags, NULL, NULL, &start_info, &proc_info)) {
-		proc_hnd_ = proc_info.hProcess;
-		thread_hnd_ = proc_info.hThread;
-		pid_ = proc_info.dwProcessId;
-		tid_ = proc_info.dwThreadId;
-		ProcessIdToSessionId(pid_, &session_id_);
-		//...
-		if (!set_app_path()) {
-			return -1;
-		}
-		return 1;
-	}
-	return 0;
-
-}
-
-bool
-Invader::Process::open(DWORD ipid, DWORD access, BOOL inherit) noexcept(false) {
-
-	if (proc_hnd_ != NULL && pid_ == ipid) {
-		return true;
-	}
-
-	proc_hnd_ = OpenProcess(access, inherit, ipid);
-	if (proc_hnd_ == NULL) {
-		return false;
-	}
-
-	pid_ = ipid;
-	inherit_handle_ = inherit;
-
-	if (!ProcessIdToSessionId(pid_, &session_id_)) {
-		session_id_ = -1;
-	}
-
-	set_app_path();
-	set_mitigation_info();
-
-	return true;
-
-}
-
-Invader::Process::Process(const Process& copy) noexcept {
-
-	*this = copy;
-
-}
-
-Invader::Process&
-Invader::Process::operator=(const Process& copy) noexcept {  //todo: test
-
-	if (this != &copy) {
-
-		pid_ = copy.pid_;
-		tid_ = copy.tid_;
-		session_id_ = copy.session_id_;
-		inherit_handle_ = copy.inherit_handle_;
-
-		memcpy(&mitigations_, &copy.mitigations_, sizeof(mitigations_));
-
-		app_path_ = copy.app_path_;
-
-		if (copy.proc_hnd_ == NULL || copy.proc_hnd_ == INVALID_HANDLE_VALUE) {
-			proc_hnd_ = copy.proc_hnd_;
-			thread_hnd_ = copy.thread_hnd_;
-		} else {
-			HANDLE current_proc = GetCurrentProcess();
-			DuplicateHandle(current_proc, copy.proc_hnd_,
-				current_proc, &proc_hnd_, 0,
-				inherit_handle_, DUPLICATE_SAME_ACCESS);
-			thread_hnd_ = OpenThread(THREAD_ALL_ACCESS, copy.inherit_handle_, copy.tid_);
-
-		}
-
-	}
-
-	return *this;
-
-}
-
-void 
-Invader::Process::close(bool terminate) noexcept {
-	
-	if (terminate) {
-		ResumeThread(thread_hnd_);
-		TerminateProcess(proc_hnd_, 0);
-	}
-
-	if (proc_hnd_ != NULL && proc_hnd_ != INVALID_HANDLE_VALUE) {
-
-		CloseHandle(proc_hnd_);
-		proc_hnd_ = NULL;
-		pid_ = -1;
-
-	}
-
-	if (thread_hnd_ != NULL && thread_hnd_ != INVALID_HANDLE_VALUE) {
-
-		CloseHandle(thread_hnd_);
-		thread_hnd_ = NULL;
-		tid_ = -1;
-
-	}
-
-}
-
-Invader::Process::Process(Process&& other) noexcept {
-
-	*this = std::move(other);
-
-}
-
-
-Invader::Process&
-Invader::Process::operator=(Process&& other) noexcept {
-
-	if (this != &other) {
-
-		proc_hnd_ = other.proc_hnd_;
-		other.proc_hnd_ = NULL;
-
-		thread_hnd_ = other.thread_hnd_;
-		other.thread_hnd_ = NULL;
-
-		inherit_handle_ = other.inherit_handle_;
-		pid_ = other.pid_;
-		tid_ = other.tid_;
-		app_path_ = other.app_path_;
-		session_id_ = other.session_id_;
-
-		memcpy(&mitigations_, &other.mitigations_, sizeof(mitigations_));
-
-	}
-
-	return *this;
-
-}
-
-Invader::Process::~Process() {
-
-	close();
-
-}
-
-
-Invader::Debugger::Debugger(DWORD pid) noexcept(false) : dbg_loop_thread_(), pid_(pid), dbg_loop_break_(false), prot_() {
-
+void Invader::Debugger::intern_init(DWORD pid) noexcept {
+	pid_ = pid;
+	//prot_ = std::mutex();
+	active_ = FALSE;
+	dbg_loop_break_ = false;
+	suspended_ = { 0,0 };
+	//dbg_loop_thread_ = std::thread();
 	except_ = { 0 };
 	wait_4_event_ = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, SYNCHRONIZE | DELETE | EVENT_MODIFY_STATE);
-	mod_ready_    = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, SYNCHRONIZE | DELETE | EVENT_MODIFY_STATE);
+	mod_ready_ = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, SYNCHRONIZE | DELETE | EVENT_MODIFY_STATE);
+}
 
-	/// <summary>
-    /// We must wait a while to system complete creation of a process othrewise debugg event will occur in DbgBreakPointWithStatus
-    /// If we wait debug event will occur in DbgBreakPoint.
-    /// </summary>
-	Sleep(2000);
+Invader::Debugger::Debugger(DWORD pid) noexcept : prot_(), dbg_loop_thread_() {
+
+	intern_init(pid);
 
 }
 
-void
-Invader::Debugger::debug(BOOL kill) noexcept {
-	dbg_loop_thread_ = std::move(std::thread(&Debugger::_loop, this, kill));
-}
-
-BOOL Invader::Debugger::_attach(DWORD pid) noexcept {
-	
+BOOL 
+Invader::Debugger::intern_attach(DWORD pid) noexcept {
 	std::lock_guard<std::mutex> guard(prot_);
-	active_ = DebugActiveProcess(pid);
-	return active_;
-
+	return active_ = DebugActiveProcess(pid);
 }
 
 bool 
-Invader::Debugger::_break() noexcept {
+Invader::Debugger::intern_break() noexcept {
 	std::lock_guard<std::mutex> guard(prot_);
 	if (dbg_loop_break_ == true) {
 		return true;
@@ -247,13 +41,86 @@ Invader::Debugger::_break() noexcept {
 	return false;
 }
 
-Invader::Dbg_exception_info 
-Invader::Debugger::except_info() const noexcept {
-	std::lock_guard<std::mutex> guard(prot_);
-	return except_;
+void 
+Invader::Debugger::intern_loop(BOOL kill) noexcept {
+
+	if (intern_attach(pid_) == FALSE) {
+		_tprintf(_T("DUUUUUUUUUUUPA error:0x%x\r\n"),GetLastError());
+		return;
+	}
+
+	DebugSetProcessKillOnExit(kill);
+
+	DEBUG_EVENT event = { 0 };
+	DWORD status = DBG_CONTINUE;
+
+	while (true) {
+
+		if (intern_break()) {
+			DebugActiveProcessStop(pid_);
+			break;
+		}
+
+		WaitForDebugEvent(&event, INFINITE);
+		
+		switch (event.dwDebugEventCode) {
+				case EXCEPTION_DEBUG_EVENT:
+					switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
+					        case EXCEPTION_BREAKPOINT:
+								
+								//prot_.lock();
+								except_._exception_code = event.u.Exception.ExceptionRecord.ExceptionCode;
+								except_.pid = event.dwProcessId;
+								except_.tid = event.dwThreadId;
+								except_.addr = event.u.Exception.ExceptionRecord.ExceptionAddress;
+								//prot_.unlock();
+
+								SetEvent(wait_4_event_);
+								WaitForSingleObject(mod_ready_, INFINITE);
+								ResetEvent(mod_ready_);
+
+							break;
+							case EXCEPTION_ACCESS_VIOLATION:
+							break;
+					}
+				break;
+		}
+
+		ContinueDebugEvent(event.dwProcessId, event.dwThreadId, status);   
+
+	}
+
 }
 
-bool 
+void 
+Invader::Debugger::debug(BOOL kill) noexcept {
+	dbg_loop_thread_ = std::move(std::thread(&Debugger::intern_loop, this, kill));
+}
+
+BOOL Invader::Debugger::active() noexcept {
+	 Sleep(2000);
+	 std::lock_guard<std::mutex> guard(prot_);
+	 return active_;
+}
+
+BOOL Invader::Debugger::stop() noexcept {
+	if (active_ == TRUE) {
+		prot_.lock();
+		dbg_loop_break_ = true;
+		prot_.unlock();
+		dbg_loop_thread_.join();
+		active_ = FALSE;
+		if (suspended_.count > 0) {
+			HANDLE th = OpenThread(THREAD_SUSPEND_RESUME, FALSE, suspended_.tid);
+			if (th != NULL) {
+				ResumeThread(th);
+			}
+		}
+	}
+	return TRUE;
+}
+
+bool
 Invader::Debugger::wait(DWORD time) const noexcept {
 	unsigned char MAX_ERROR = 4;
 	for (unsigned char i = 0; i < MAX_ERROR; i++) {
@@ -266,83 +133,56 @@ Invader::Debugger::wait(DWORD time) const noexcept {
 	return false;
 }
 
-void
-Invader::Debugger::_loop(BOOL kill) noexcept {
-
-	if (_attach(pid_) == FALSE) {
-		return;
-	}
-
-	DebugSetProcessKillOnExit(kill);
-
-	DEBUG_EVENT event = { 0 };
-	DWORD status = DBG_CONTINUE;
-
-	while (true) {
-
-		  if (_break()) {
-			 DebugActiveProcessStop(pid_);
-			 break;
-		  }
-
-		  WaitForDebugEvent(&event, INFINITE);
-
-		  switch (event.dwDebugEventCode) {
-		  case EXCEPTION_DEBUG_EVENT:
-			  //_tprintf(_T("EXCEPTION CODE : 0x%x add : 0x%p\r\n"), event.u.Exception.ExceptionRecord.ExceptionCode, event.u.Exception.ExceptionRecord.ExceptionAddress);
-			  switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
-		
-			      case EXCEPTION_BREAKPOINT:
-
-					  prot_.lock();
-					  except_._exception_code = event.u.Exception.ExceptionRecord.ExceptionCode;
-					  except_.pid = event.dwProcessId;
-					  except_.tid = event.dwThreadId;
-					  except_.addr = event.u.Exception.ExceptionRecord.ExceptionAddress;
-					  prot_.unlock();
-
-					  SetEvent(wait_4_event_); 
-					  WaitForSingleObject(mod_ready_, INFINITE);
-					  ResetEvent(mod_ready_);
-
-				  break;
-			  }
-			  break;
-
-		  }
-
-		  ContinueDebugEvent(event.dwProcessId, event.dwThreadId, status);
-
-	}
-
-}
-
-BOOL 
-Invader::Debugger::active() noexcept {
-
-	Sleep(2000);
+Invader::Dbg_exception_info
+Invader::Debugger::except_info() const noexcept {
 	std::lock_guard<std::mutex> guard(prot_);
-	return active_;
-
+	return except_;
 }
 
-BOOL 
-Invader::Debugger::stop() noexcept {
-	if (active_ == TRUE) {
-		//SetEvent(ready_);
-		prot_.lock();
-		dbg_loop_break_ = true;
-		prot_.unlock();
-		dbg_loop_thread_.join();
-		active_ = FALSE;
+/// 
+/// 
+/// 
+
+BOOL Invader::Invader2::open(DWORD pid) noexcept {
+	proc_ = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	return (proc_ != NULL) ? TRUE : FALSE;
+}
+
+Invader::Invader2::Invader2(DWORD pid) noexcept : creation_flag_(0), pid_(pid), tid_(0), thread_(NULL),
+                            memory_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
+	open(pid);
+}
+
+BOOL Invader::Invader2::create(const string_t& app_path, DWORD flag) noexcept {
+
+	creation_flag_ = flag;
+
+	STARTUPINFO start_info = { 0 };
+	PROCESS_INFORMATION proc_info = { 0 };
+	start_info.dwFlags = STARTF_USESHOWWINDOW;
+	start_info.wShowWindow = SW_HIDE;
+
+	if (CreateProcess(app_path.c_str(), NULL, NULL, NULL, FALSE, flag, NULL, NULL, &start_info, &proc_info)) {
+		proc_ = proc_info.hProcess;
+		pid_ = proc_info.dwProcessId;
+		thread_ = proc_info.hThread;
+		tid_ = proc_info.dwThreadId;
+		return TRUE;
 	}
-	return TRUE;
+
+	return FALSE;
+
 }
 
+Invader::Invader2::Invader2(const string_t& app_path, DWORD flag) noexcept : proc_(NULL), creation_flag_(flag),
+                            memory_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
+
+	create(app_path, flag);
+
+}
 
 bool 
-Invader::Invader::_alloc(size_t size) noexcept(false) {
-
+Invader::Invader2::intern_alloc(size_t size) noexcept(false) {
 	if (memory_ != nullptr) {
 		delete[] memory_;
 	}
@@ -353,11 +193,10 @@ Invader::Invader::_alloc(size_t size) noexcept(false) {
 	}
 
 	return true;
-
 }
 
 unsigned long long 
-Invader::Invader::_LdrLoadDll_offset() noexcept {
+Invader::Invader2::intern_LdrLoadDll_offset() noexcept {
 
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
 	if (ntdll == nullptr) {
@@ -370,8 +209,7 @@ Invader::Invader::_LdrLoadDll_offset() noexcept {
 
 }
 
-bool 
-Invader::Invader::remote_addresses(const void* proc_addr) noexcept {
+bool Invader::Invader2::remote_addresses(const void* proc_addr) noexcept {
 
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
 	if (ntdll == nullptr) {
@@ -389,16 +227,14 @@ Invader::Invader::remote_addresses(const void* proc_addr) noexcept {
 
 	INT64 DbgBreakPoint_offset = DbgBreakPoint_proc - reinterpret_cast<char*>(ntdll);
 	Remote_ntdll_base_addr = reinterpret_cast<void*>(reinterpret_cast<INT64>(proc_addr) - DbgBreakPoint_offset);
-	Remote_LdrLoadDll_addr = reinterpret_cast<void*>(reinterpret_cast<INT64>(Remote_ntdll_base_addr) + _LdrLoadDll_offset());
+	Remote_LdrLoadDll_addr = reinterpret_cast<void*>(reinterpret_cast<INT64>(Remote_ntdll_base_addr) + intern_LdrLoadDll_offset());
 
 	return true;
 
 }
 
-int 
-Invader::Invader::read_memory(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept(false) {
-
-	if (!_alloc(size)) {
+int Invader::Invader2::read_memory(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept {
+	if (!intern_alloc(size)) {
 		return -1;
 	}
 
@@ -412,25 +248,25 @@ Invader::Invader::read_memory(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept(f
 	}
 
 	return static_cast<int>(num_bytes);
-
 }
 
-SIZE_T 
-Invader::Invader::write_memory(HANDLE proc, LPVOID addr, const unsigned char* data, size_t data_size) noexcept(false) {
-
+SIZE_T Invader::Invader2::write_memory(HANDLE proc, LPVOID addr, const unsigned char* data, size_t data_size) noexcept {
 	SIZE_T num_bytes;
 	if (WriteProcessMemory(proc, addr, data, data_size, &num_bytes) == FALSE) {
 		return 0;
 	}
 	return num_bytes;
-
 }
 
-int 
+///
+///
+///
+
+int
 Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned char* stub, size_t stub_size) noexcept {
 
 	size_t len = wcslen(dll_path);
-	if ((len + 1) * sizeof(WCHAR) >= 88) {//0x7ffe) {
+	if ((len + 1) * sizeof(WCHAR) >= 160) {//0x7ffe) {
 		return -1;
 	}
 
@@ -448,7 +284,6 @@ Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned cha
 		return 0;
 	}
 	*in_stub_len_ptr = max_path_len;
-
 	INT64 LdrLoadDll_addr_le = _byteswap_uint64(reinterpret_cast<INT64>(LdrLoadDll_addr));
 
 	INT64* in_stub_proc_addr_ptr = reinterpret_cast<INT64*>(memchr(stub, 0x77777777, stub_size));
@@ -462,10 +297,19 @@ Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned cha
 	if (in_stub_path_ptr == nullptr) {
 		return 0;
 	}
+
 	in_stub_path_ptr += sizeof(void*);
 
 	memcpy(reinterpret_cast<void*>(in_stub_path_ptr), dll_path, len * sizeof(WCHAR));
 
 	return 1;
+
+}
+
+bool 
+Invader::Invader2::do_i_have_privilege() noexcept {
+
+	//
+	return false;
 
 }

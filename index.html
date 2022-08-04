@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-
-<html>
-	<head>
-
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		
-		<title>Invader PoC (x64)</title>
-	</head>
-<body>
+<body style="background-color:white;">
 <img src="./Static/minjon.png" style="width:230px;height:230px"/>
 <br/>
 <pre>
@@ -44,22 +33,22 @@ VirtualProtectEx i WriteProcessMemory<br/>
 <br/>
 Kiedy podłączamy debugger do procesu to zależnie od stopnia, w jakim został utworzony taki proces,<br/>
 jego wykonanie zatrzymuje się generując wyjątek 0x80000003 (Exception Breakpoint).<br/> 
-Na poziomie implementacyjnym, w systemie Windows i aplikacjach trybu użytkownika (ring-3) wykonanie kodu w procesie, <br/>
+Na poziomie implementacyjnym, w systemie Windows i aplikacjach trybu użytkownika (ring-3) wykonanie kodu w procesie, 
 do którego podłączany jest debugger trafia do jednej z dwóch funkcji:<br/>
 <br/>
 DbgBreakPointWithStatus - jeśli proces jest w we wczesnym stadium wykonywania (został uruchomiony przed chwilą, jest w trybie SUSPEND) - lub<br/>
 DbgBreakPoint - jeśli proces działa dłuższą chwilę.<br/>
 <br/>
-Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EXCEPTION_BREAKPOINT), które w przypadku, <br/>
-kiedy do procesu podłączony jest debugger podobnie jak inne zdarzenia/wyjątki debuggowania będzie obsłużone przez debugger.<br/>
-Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka, <br/>
-że ta pierwsza nie jest eksportowana przez bibliotekę ntdll.dll i trudno na jej podstawie obliczyć adres bazowy biblioteki ntdll.dll w sposób "mało hałaśliwy".<br/>
+Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EXCEPTION_BREAKPOINT), które w przypadku, 
+kiedy do procesu podłączony jest debugger podobnie jak inne zdarzenia/wyjątki debuggowania będzie obsłużone przez debugger.
+Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka, 
+że ta pierwsza nie jest eksportowana przez bibliotekę ntdll.dll i trudno na jej podstawie obliczyć adres bazowy biblioteki ntdll.dll w sposób "mało hałaśliwy".
 Poza tym DbgBreakPointWithStatus zwraca wartość, a DbgBreakPoint nie.<br/>
 Kiedy w debuggowanej aplikacji występuje wyjątek, debugger otrzymuje na jego temat szereg informacji, <br/>
 w których zawarty jest między innymi adres, pod którym wyjątek wystąpił. <br/>
-Jest to jeden z kluczowych elementów tej techniki, ponieważ ten adres z naszej perspektywy to wartość wskaźnika rozkazów (RIP/EIP) w atakowanym procesie,<br/> 
-którego wykonanie jest aktualnie wstrzymane przez debugger, a nad którego wykonaniem mamy relatywnie dużą kontrolę. <br/>
-Teoretycznie wystarczy, więc zmienić prawa dostępu do pamięci wskazywanej przez adres, pod którym wystąpił wyjątek, <br/>
+Jest to jeden z kluczowych elementów tej techniki, ponieważ ten adres z naszej perspektywy to wartość wskaźnika rozkazów (RIP/EIP) w atakowanym procesie,
+którego wykonanie jest aktualnie wstrzymane przez debugger, a nad którego wykonaniem mamy relatywnie dużą kontrolę. 
+Teoretycznie wystarczy, więc zmienić prawa dostępu do pamięci wskazywanej przez adres, pod którym wystąpił wyjątek,
 zapisać pod tym adresem własny kod i przywrócić wykonanie procesu.
 <h5>Dlaczego EXCEPTION_BREAKPOINT?</h5>
 Funkcje Dbg* z ntdll są dość rzadko wykorzystywane podczas normalnego wykonania aplikacji.<br/> 
@@ -93,23 +82,53 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 
 <ul style="list-style-type:circle">
   <li>
+   <s>
    Po odłączeniu debuggera istnieje duże prawdopodobieństwo, że atakowany proces zakończy działanie z błędem.<br/>
-   Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzoukierunkowanych ataków, <br/>
+   Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzo ukierunkowanych ataków, <br/>
    a czasami może być nie możliwe. <br/>
    Tak, więc aktualnie Invader nadaje się lepiej do tworzenia i atakowania procesów "Zombie" niż do atakowania działających w systemie normalnych aplikacji.<br/>
-   Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.  
+   Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.
+  </s>
+  <br/>
+  Aktualna wersja jest w dużym stopniu stabilna, aczkolwiek nie mogę zagwarantować stabliności w 100% ponieważ:
+    <ul>
+	 <li>
+	 Context Switching (wielowątkowość) - <b>częściowo rozwiązany.</b><br/>
+	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach i koligacji procesorów.<br/>
+	 Teoretycznie więc, jądro może przestać wykonywać wątek, który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
+	 inny wątek, który np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.
+	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i 
+	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie, którego nawet nie testowałem, ponieważ kod korzystjący z 
+	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.
+	 </li>
+	 <li>
+	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>
+	 Wartości kluczowych rejestrów możemy zachować wykorzystując instrukcje PUSH/POP, PUSHFQ/POPFQ, POPAD/PUSHAD.<br/>
+	 Orginalna wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.
+	 </li>
+	</ul>
   </li>
   <li>
-   Świat nieznośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
+   Świat nie znośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
   </li>
 </ul>
 
 <h3> FAQ (które sobie zadawałem) </h3>
 Czy mogę zhakować lssas.exe ?<br/>
+<s>
 Jeśli dysponujesz odpowiednimi uprawnieniami to prawdopodobnie tak, <br/>
 ale równie prawdopodobne jest to, iż lsass.exe po wszystkim zakończy swoją 
 działalność w tragicznych okolicznościach - co może być pomocne, jeśli np. chcesz zrestartować system, a nie posiadasz stosownych uprawnień,<br/>
 ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do lassas.exe ;P.
+</s>
+<br/>
+Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
+
+<h3> Todo: </h3>
+<ul>
+<li>Implemntacja opcji -pid - co nastąpi zanim kur zapieje trzy razy i Marcin pojedzie na wakacje.</li>
+<li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz. 🤘</li>
+</ul>
 
 <h3> Source code (x64 PoC) </h3>
 

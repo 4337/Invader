@@ -82,11 +82,18 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 
 <ul style="list-style-type:circle">
   <li>
+   <s>
    Po odłączeniu debuggera istnieje duże prawdopodobieństwo, że atakowany proces zakończy działanie z błędem.<br/>
    Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzo ukierunkowanych ataków, <br/>
    a czasami może być nie możliwe. <br/>
    Tak, więc aktualnie Invader nadaje się lepiej do tworzenia i atakowania procesów "Zombie" niż do atakowania działających w systemie normalnych aplikacji.<br/>
-   Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.  
+   Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.
+  </s>
+  Są dwa zasadnicze problemy: 
+    <ul>
+	 <li>Context Switching (wielowątkowość)</li>
+	 <li>Stan pamięci procesu.</li>
+	</ul>
   </li>
   <li>
    Świat nie znośni próżni, jeden zredukowany łańcuch zastępuje inny łańcuch.
@@ -95,10 +102,13 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 
 <h3> FAQ (które sobie zadawałem) </h3>
 Czy mogę zhakować lssas.exe ?<br/>
+<s>
 Jeśli dysponujesz odpowiednimi uprawnieniami to prawdopodobnie tak, <br/>
 ale równie prawdopodobne jest to, iż lsass.exe po wszystkim zakończy swoją 
 działalność w tragicznych okolicznościach - co może być pomocne, jeśli np. chcesz zrestartować system, a nie posiadasz stosownych uprawnień,<br/>
 ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do lassas.exe ;P.
+</s>
+Yes we can :P
 
 <h3> Source code (x64 PoC) </h3>
 

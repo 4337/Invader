@@ -313,17 +313,15 @@ int _tmain(int argc, const TCHAR** argv) {
 	if (dbg.active() == FALSE) {
 		_tprintf(_T("[+]. Unable to attach to the process. error:0x%x\r\n"), GetLastError());
 	}
-	
-	unsigned char bp_incorrect = 0;
 
 	if (inv.creation_flag() & CREATE_SUSPENDED) {
 		_tprintf(_T("[+]. Resume main thread - process was created with CREATE_SUSPENDED value\r\n"));
-		bp_incorrect = 1;
 		inv.resume_main_thread();
 	}
 	
 	void* exc_addr = nullptr;
 	unsigned char bp = 0;
+	unsigned char bp_incorrect = 1;
 
 	while (true) {
 

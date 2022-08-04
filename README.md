@@ -82,7 +82,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 
 <ul style="list-style-type:circle">
   <li>
-   Aktualna wetrsja jest całkiem stabilna, aczkolwiek nie mogę jej zagwarantować w 100% ponieważ:<br/>
+   Aktualna wetrsja jest całkiem stabilna, aczkolwiek nie mogę zagwarantować stabliności w 100% ponieważ:<br/>
    <s>
    Po odłączeniu debuggera istnieje duże prawdopodobieństwo, że atakowany proces zakończy działanie z błędem.<br/>
    Zapewnienie stabilności i poprawności działania atakowanego procesu po odłączeniu debuggera może wymagać bardzo ukierunkowanych ataków, <br/>

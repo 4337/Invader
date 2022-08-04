@@ -128,6 +128,7 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <ul>
 <li>Implemntacja opcji -pid - co nastąpi zanim kur zapieje trzy razy i Marcin pojedzie na wakacje.</li>
 <li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz. 🤘</li>
+<li>Destruktory i sprzątanie.</li>
 </ul>
 
 <h3> Source code (x64 PoC) </h3>

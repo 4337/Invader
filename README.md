@@ -133,7 +133,9 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <a href="https://4337.github.io/Invader/" target="_blank">https://4337.github.io/Invader/</a>
 	
 <h3>Screen</h3>
+<!--
 <img src="./SS/x64_to_x32_WOW_new_process.png"/>
+-->
 <br/>
 <img src="./SS/2.png"/>
 <br/>

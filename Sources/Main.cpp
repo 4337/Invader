@@ -395,7 +395,7 @@ int _tmain(int argc, const TCHAR** argv) {
 
 	dbg.stop();
 	_tprintf(_T("[+]. Code injection done with SUSCCESS.\r\n"
-	            "[+]. Deattach debugger was done, process should still live.\r\n"
+	            "[+]. Deattach debugger was done, process should be still alive.\r\n"
 	         ));
 	//while (true);
 

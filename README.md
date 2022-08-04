@@ -91,8 +91,15 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
   </s>
   Dwa główne problemy: 
     <ul>
-	 <li>Context Switching (wielowątkowość)</li>
-	 <li>Stan pamięci procesu (rejestry, stos).</li>
+	 <li>
+	 Context Switching (wielowątkowość) - <b>nie rozwiązany<b/><br/>
+	 wqokdoqkwd
+	 </li>
+	 <li>
+	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>
+	 Wartości kluczowych rejestrów możemy zachować wykorzystując instrukcje PUSH/POP, PUSHFQ/POPFQ, POPAD/PUSHAD.<br/>
+	 Orginalną wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.
+	 </li>
 	</ul>
   </li>
   <li>

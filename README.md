@@ -92,7 +92,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
   </s>
     <ul>
 	 <li>
-	 Context Switching (wielowątkowość) - <b>częściowo nie rozwiązany.</b><br/>
+	 Context Switching (wielowątkowość) - <b>częściowo nierozwiązany.</b><br/>
 	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach i koligacji procesorów.<br/>
 	 Teoretycznie więc jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
 	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.<br/>

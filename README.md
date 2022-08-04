@@ -109,7 +109,9 @@ ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do
 <img src="./SS/x64_to_x32_WOW_new_process.png"/>
 <br/>
 <img src="./SS/2.png"/>
-	
+<br/>
+<img src="./SS/3.png"/>	
+
 <br/>
 <br/>
 

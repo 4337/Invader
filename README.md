@@ -46,9 +46,9 @@ Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka,
 Poza tym DbgBreakPointWithStatus zwraca wartość, a DbgBreakPoint nie.<br/>
 Kiedy w debuggowanej aplikacji występuje wyjątek, debugger otrzymuje na jego temat szereg informacji, <br/>
 w których zawarty jest między innymi adres, pod którym wyjątek wystąpił. <br/>
-Jest to jeden z kluczowych elementów tej techniki, ponieważ ten adres z naszej perspektywy to wartość wskaźnika rozkazów (RIP/EIP) w atakowanym procesie,<br/> 
-którego wykonanie jest aktualnie wstrzymane przez debugger, a nad którego wykonaniem mamy relatywnie dużą kontrolę. <br/>
-Teoretycznie wystarczy, więc zmienić prawa dostępu do pamięci wskazywanej przez adres, pod którym wystąpił wyjątek, <br/>
+Jest to jeden z kluczowych elementów tej techniki, ponieważ ten adres z naszej perspektywy to wartość wskaźnika rozkazów (RIP/EIP) w atakowanym procesie,
+którego wykonanie jest aktualnie wstrzymane przez debugger, a nad którego wykonaniem mamy relatywnie dużą kontrolę. 
+Teoretycznie wystarczy, więc zmienić prawa dostępu do pamięci wskazywanej przez adres, pod którym wystąpił wyjątek,
 zapisać pod tym adresem własny kod i przywrócić wykonanie procesu.
 <h5>Dlaczego EXCEPTION_BREAKPOINT?</h5>
 Funkcje Dbg* z ntdll są dość rzadko wykorzystywane podczas normalnego wykonania aplikacji.<br/> 

@@ -68,12 +68,12 @@ Invader::Debugger::intern_loop(BOOL kill) noexcept {
 					switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
 					        case EXCEPTION_BREAKPOINT:
 								
-								//prot_.lock();
+								prot_.lock();
 								except_._exception_code = event.u.Exception.ExceptionRecord.ExceptionCode;
 								except_.pid = event.dwProcessId;
 								except_.tid = event.dwThreadId;
 								except_.addr = event.u.Exception.ExceptionRecord.ExceptionAddress;
-								//prot_.unlock();
+								prot_.unlock();
 
 								SetEvent(wait_4_event_);
 								WaitForSingleObject(mod_ready_, INFINITE);

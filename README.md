@@ -127,7 +127,7 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <h3> Todo: </h3>
 <ul>
 <li>Implemntacja opcji -pid - co nastąpi zanim kur zapieje trzy razy i Marcin pojedzie na wakacje.</li>
-<li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz :|</li>
+<li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz 🤘</li>
 </ul>
 
 <h3> Source code (x64 PoC) </h3>

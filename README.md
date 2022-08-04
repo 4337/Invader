@@ -107,6 +107,8 @@ ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do
 	
 <h3>Screen</h3>
 <img src="./SS/x64_to_x32_WOW_new_process.png"/>
+<br/>
+<img src="./SS/2.png"/>
 	
 <br/>
 <br/>

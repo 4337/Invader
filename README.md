@@ -89,6 +89,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
    Tak, więc aktualnie Invader nadaje się lepiej do tworzenia i atakowania procesów "Zombie" niż do atakowania działających w systemie normalnych aplikacji.<br/>
    Oczywiście nic nie stoi na przeszkodzie, aby uniemożliwić zakończenie działania atakowanego procesu np. przez ustawienie wątków w tryb SUSPEND i odłączyć debugger.
   </s>
+  <br/>
   Aktualna wersja jest w dużym stopniu stabilna, aczkolwiek nie mogę zagwarantować stabliności w 100% ponieważ:
     <ul>
 	 <li>

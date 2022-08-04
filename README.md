@@ -104,7 +104,10 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 <li>
 	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>
 	 Wartości kluczowych rejestrów możemy zachować wykorzystując instrukcje PUSH/POP, PUSHFQ/POPFQ, POPAD/PUSHAD.<br/>
-	 Orginalna wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.
+	 Orginalna wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.<br/>
+	 Zawartość stosu nie powinna zostać zmieniona/uszkodzona w wyniku wykonania wstrzykniętego kodu poniważ to co robimy<br/>
+	 to w gruncie rzeczy zmiana zawartości (kodu) procedury (wariant Function Hjackingu), więc wszystko jest ułożone i wyrównane tak jak powinno być. <br/>
+	 Stos może zostać uszkodzony w wyniku przełączenia kontektu przy zarządzaniu wątkami.
 	 </li>
 	</ul>
   </li>

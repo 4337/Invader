@@ -93,7 +93,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
     <ul>
 	 <li>
 	 Context Switching (wielowątkowość) - <b>nie rozwiązany</b><br/>
-	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach, koligacji procesorów.<br/>
+	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach i koligacji procesorów.<br/>
 	 Teoretycznie więc jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
 	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.<br/>
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i <br/>

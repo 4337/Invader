@@ -61,7 +61,8 @@ namespace Invader {
 		DLL_FILE_NOT_EXISTS,
 		NOT_ENOUGH_ARGS,
 		SIMULTANEOUSLY_OPT,
-		CONVERSION_ERROR
+		CONVERSION_ERROR,
+		DLL_PATH_2_LONG
 	};
 
 	class Options {
@@ -176,6 +177,11 @@ namespace Invader {
 
 				if (!fs::exists(argv_[++i])) {
 					opt.error(DLL_FILE_NOT_EXISTS);
+					break;
+				}
+
+				if (_tcslen(argv_[i]) * 2 >= 160) {
+					opt.error(DLL_PATH_2_LONG);
 					break;
 				}
 

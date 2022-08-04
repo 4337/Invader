@@ -116,7 +116,7 @@ działalność w tragicznych okolicznościach - co może być pomocne, jeśli np
 ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do lassas.exe ;P.
 </s>
 <br/>
-Yes we can (jeśli posiadasz odpowiednie uprawnienia w systemie) ;D
+Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 
 <h3> Source code (x64 PoC) </h3>
 

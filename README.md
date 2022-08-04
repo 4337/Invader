@@ -98,7 +98,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 Teoretycznie więc, jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
 	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i 
-	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie którego nawet nie testowałem, bo kod korzystjący z 
+	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie, którego nawet nie testowałem, ponieważ kod korzystjący z 
 	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.
 	 </li>
 	 <li>

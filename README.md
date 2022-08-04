@@ -95,7 +95,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 <li>
 	 Context Switching (wielowątkowość) - <b>częściowo rozwiązany.</b><br/>
 	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach i koligacji procesorów.<br/>
-	 Teoretycznie więc jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
+	 Teoretycznie więc, jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
 	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i 
 	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie którego nawet nie testowałem, bo kod korzystjący z 
@@ -123,6 +123,11 @@ ale w takim przypadku pewnie nie masz również uprawnień żeby dostać się do
 </s>
 <br/>
 Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
+
+<h3> FAQ (które sobie zadawałem) </h3>
+<ul>
+<li>Implemntacja opcji -pid - co nastąpi zanim kur zapieje i Marcin pojedzie na wakacje.</li>
+<li>Aktualizacja tekstu który czytasz skoro to czytasz :|</li>
 
 <h3> Source code (x64 PoC) </h3>
 

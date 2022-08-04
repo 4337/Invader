@@ -95,8 +95,8 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 <li>
 	 Context Switching (wielowątkowość) - <b>częściowo rozwiązany.</b><br/>
 	 Wykonywanie wątków w Windowsie jest oparte na kwantach czasu, priorytetach i koligacji procesorów.<br/>
-	 Teoretycznie więc, jądro może przestać wykonywać wątek który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
-	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.
+	 Teoretycznie więc, jądro może przestać wykonywać wątek, który zawiera wstrzyknięty kod w niekontrolowanym przez nas momencie i zacząć wykonywać <br/>
+	 inny wątek, który np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i 
 	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie, którego nawet nie testowałem, ponieważ kod korzystjący z 
 	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.

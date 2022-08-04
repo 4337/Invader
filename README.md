@@ -98,7 +98,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 <li>
 	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>
 	 Wartości kluczowych rejestrów możemy zachować wykorzystując instrukcje PUSH/POP, PUSHFQ/POPFQ, POPAD/PUSHAD.<br/>
-	 Orginalną wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.
+	 Orginalna wartość wskaźnika rozkazów to ntdll!DbgBreakPoint więc możemy ja łatwo przywrócić.
 	 </li>
 	</ul>
   </li>

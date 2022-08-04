@@ -92,7 +92,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
   Dwa główne problemy: 
     <ul>
 	 <li>
-	 Context Switching (wielowątkowość) - <b>nie rozwiązany<b/><br/>
+	 Context Switching (wielowątkowość) - <b>nie rozwiązany</b><br/>
 	 wqokdoqkwd
 	 </li>
 	 <li>

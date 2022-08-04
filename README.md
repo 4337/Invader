@@ -98,7 +98,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 inny wątek który, np. korzysta pośrednio lub bezpośrednio z adresu pamięci który nadpisaliśmy.<br/>
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i <br/>
 	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie którego nawet nie testowałem, bo kod z <br/>
-	 CreateToolhelp32Snapshot i Thread32First jest brzydki.
+	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.
 	 </li>
 	 <li>
 	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>

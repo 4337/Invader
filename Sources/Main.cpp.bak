@@ -51,7 +51,6 @@ namespace Invader {
 			     "-dll path - path to dll to inject\r\n"
 			     "-pid PID  - target process ID, can't be used with -app option\r\n"
 			     "-dontdie  - do not let the attacked process die\r\n"
-			     "-freeze   - freeze thread that caused accesss violation\r\n"
 			     "----------------------------------------------------------------------\r\n"
 		         ));
 	}
@@ -69,22 +68,13 @@ namespace Invader {
 	class Options {
 
 		bool dontdie_;
-		bool freeze_;
 		int error_;
 		DWORD pid_;
 		Invader::string_t app_;
 		std::wstring dll_;
 
 	public:
-		Options() noexcept : error_(NO_A_ERROR), pid_(-1), app_(_T("")), dll_(L""), dontdie_(false), freeze_(false) {
-		}
-
-		inline const bool freeze() const noexcept {
-			return freeze_;
-		}
-
-		inline void set_freeze() noexcept {
-			freeze_ = true;
+		Options() noexcept : error_(NO_A_ERROR), pid_(-1), app_(_T("")), dll_(L""), dontdie_(false) {
 		}
 
 		inline void
@@ -174,11 +164,6 @@ namespace Invader {
 		namespace fs = std::filesystem;
 
 		for (int i = 1; i < argc_; i++) {
-
-
-			if (_tcscmp(argv_[i], _T("-freeze")) == 0) {
-				opt.set_freeze();
-			}
 
 			if (_tcscmp(argv_[i], _T("-dontdie")) == 0) { //-dontdie
 				opt.set_dontdie();
@@ -319,7 +304,6 @@ int _tmain(int argc, const TCHAR** argv) {
 			return -1;
 		}
 		_tprintf(_T("[+]. Process with pid:%d opened.\r\n"), opt.pid());
-		//suspend main thread ?!?
 	}
 	
 	dbg.attach(inv.pid());
@@ -338,7 +322,6 @@ int _tmain(int argc, const TCHAR** argv) {
 	void* exc_addr = nullptr;
 	unsigned char bp = 0;
 	unsigned char bp_incorrect = 1;
-	const void* remote_LdrLoadDll_addr = nullptr;
 
 	while (true) {
 
@@ -350,7 +333,7 @@ int _tmain(int argc, const TCHAR** argv) {
 
 			exc_addr = exc.addr;
 			inv.remote_addresses(exc.addr);
-			remote_LdrLoadDll_addr = inv.remote_LdrLoadDll_addr();
+			const void* remote_LdrLoadDll_addr = inv.remote_LdrLoadDll_addr();
 
 			_tprintf(_T("[+]. Correct breakpoint has been reached.\r\n"
 				"[-]. address: 0x%p\r\n"
@@ -375,14 +358,8 @@ int _tmain(int argc, const TCHAR** argv) {
 			//stack_walk;
 
 			DWORD old_protection;
-			if (inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_stub), PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
-				_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"),GetLastError());
-				//clean
-			}
-			if (inv.write_memory(inv.process(), exc.addr, Invader::x64_stub, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
-				_tprintf(_T("[+]. Replacing code fail error: 0x%x.\r\n"), GetLastError());
-				//clean
-			}
+			inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_stub), PAGE_EXECUTE_READWRITE, &old_protection);
+			inv.write_memory(inv.process(), exc.addr, Invader::x64_stub, sizeof(Invader::x64_stub));
 			FlushInstructionCache(inv.process(), exc.addr, sizeof(Invader::x64_stub));
 
 		}
@@ -395,22 +372,6 @@ int _tmain(int argc, const TCHAR** argv) {
 		}
 		else if (bp - bp_incorrect == 1)
 		{
-			if (exc_addr != exc.addr) {
-				_tprintf(_T("[+]. Someting goes wrong, corrupted RIP address: 0x%p exc.code:0x%x tid:%d\r\n"), 
-					      exc.addr, exc._exception_code,exc.tid);
-				if (opt.freeze() == true) {
-					_tprintf(_T("[+]. I'll try to freeze corrupted thread.\r\n"));
-					HANDLE th = OpenThread(THREAD_ALL_ACCESS, FALSE, exc.tid);
-					if (th == NULL) {
-						_tprintf(_T("[+]. Unfortunately in can't open thread.\r\n"));
-						//clean
-					}
-					SuspendThread(th);
-					_tprintf(_T("[+]. Thread with id:%d is now frozen.\r\n"), exc.tid);
-					DebugBreakProcess(inv.process());
-					continue;
-				}
-			}
 			_tprintf(_T("[+]. Code should be injected.\r\n"
 			            "[+]. Restored RIP: 0x%p\r\n"),
 				        exc.addr);
@@ -430,7 +391,7 @@ int _tmain(int argc, const TCHAR** argv) {
 			break;
 
 		}
-		
+
 		bp++;
 		dbg.ready();
 

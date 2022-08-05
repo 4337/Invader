@@ -13,7 +13,6 @@ void Invader::Debugger::intern_init(DWORD pid) noexcept {
 	//prot_ = std::mutex();
 	active_ = FALSE;
 	dbg_loop_break_ = false;
-	suspended_ = { 0,0 };
 	//dbg_loop_thread_ = std::thread();
 	except_ = { 0 };
 	wait_4_event_ = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, SYNCHRONIZE | DELETE | EVENT_MODIFY_STATE);
@@ -81,6 +80,16 @@ Invader::Debugger::intern_loop(BOOL kill) noexcept {
 
 							break;
 							case EXCEPTION_ACCESS_VIOLATION:
+
+								prot_.lock();
+								except_._exception_code = event.u.Exception.ExceptionRecord.ExceptionCode;
+								except_.pid = event.dwProcessId;
+								except_.tid = event.dwThreadId;
+								except_.addr = event.u.Exception.ExceptionRecord.ExceptionAddress;
+								prot_.unlock();
+
+								SetEvent(wait_4_event_);
+
 							break;
 					}
 				break;
@@ -110,12 +119,6 @@ BOOL Invader::Debugger::stop() noexcept {
 		prot_.unlock();
 		dbg_loop_thread_.join();
 		active_ = FALSE;
-		if (suspended_.count > 0) {
-			HANDLE th = OpenThread(THREAD_SUSPEND_RESUME, FALSE, suspended_.tid);
-			if (th != NULL) {
-				ResumeThread(th);
-			}
-		}
 	}
 	return TRUE;
 }

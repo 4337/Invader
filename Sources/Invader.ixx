@@ -19,11 +19,6 @@ export {
 			DWORD exception_code;
 		};
 
-		struct Suspend_threads {
-			DWORD tid;
-			DWORD count;
-		};
-
 		class Debugger {
 
 			/// <summary>
@@ -45,7 +40,6 @@ export {
 			HANDLE mod_ready_;
 
 			DWORD pid_;
-			Suspend_threads suspended_;
 
 			Dbg_exception_info except_;
 
@@ -91,11 +85,6 @@ export {
 			   }
 
 			   explicit Debugger(DWORD pid) noexcept;
-
-			   inline const Suspend_threads suspended_threads() const noexcept {
-				   std::lock_guard<std::mutex> guard(prot_);
-				   return suspended_;
-			   }
 
 			   inline void attach(DWORD pid) noexcept {
 				   intern_init(pid);

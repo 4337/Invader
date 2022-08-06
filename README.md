@@ -148,7 +148,8 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <img src="./SS/3.png"/>	
 <br/>
 <img src="./SS/4.png"/>	
-
+<br/>
+<img src="./SS/5.png"/>	
 
 <br/>
 <br/>

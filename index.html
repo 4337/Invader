@@ -100,6 +100,9 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 Rozwiązaniem może być zamrożenie np. za pomocą SuspendThread wszystkich wątków poza tym który wykonuje wstrzyknięty kod i 
 	 odmrożenie ich w stosowym momencie za pomocą np. ResumeThread. Jest to teoretyczne rozwiązanie, którego nawet nie testowałem, ponieważ kod korzystjący z 
 	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.
+	 Kolejny pomysł, który może przyczynić się do lepszej stabilizacji, to umieszczenie pod adresem ntdll!DbgBreakPoint "trampoliny", skoku bezwarunkowego do 
+	 kodu (stub), który zostanie umieszczony w mniej używanej przez atakowany proces lokalizacji pamięci, np. obszar funkcji startowych wskazwyany przez 
+	 _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint. To znacznie redukuje rozmiar i tym samym nadpisuje mniej kodu z biblioteki ntdll.dll.
 	 </li>
 	 <li>
 	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>

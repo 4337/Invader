@@ -1,5 +1,4 @@
 ﻿/// TODO:
-/// FIX ACCESS_DENIED 0x05 in dbg.debug(TRUE); && test debugging with -pid option
 /// Destructors && cleaning 
 
 #include <Windows.h>
@@ -52,6 +51,7 @@ namespace Invader {
 			     "-pid PID  - target process ID, can't be used with -app option\r\n"
 			     "-dontdie  - do not let the attacked process die\r\n"
 			     "-freeze   - freeze thread that caused accesss violation\r\n"
+			     "-trampoline - write stub at _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint and replace ntdll!DbgBreakPoint by jmp instruction\r\n"
 			     "----------------------------------------------------------------------\r\n"
 		         ));
 	}
@@ -70,13 +70,14 @@ namespace Invader {
 
 		bool dontdie_;
 		bool freeze_;
+		bool trampoline_;
 		int error_;
 		DWORD pid_;
 		Invader::string_t app_;
 		std::wstring dll_;
 
 	public:
-		Options() noexcept : error_(NO_A_ERROR), pid_(-1), app_(_T("")), dll_(L""), dontdie_(false), freeze_(false) {
+		Options() noexcept : error_(NO_A_ERROR), pid_(-1), app_(_T("")), dll_(L""), dontdie_(false), freeze_(false), trampoline_(false) {
 		}
 
 		inline const bool freeze() const noexcept {
@@ -85,6 +86,15 @@ namespace Invader {
 
 		inline void set_freeze() noexcept {
 			freeze_ = true;
+		}
+
+		const bool trampoline() const noexcept {
+			return trampoline_;
+		}
+
+		inline void 
+		set_trampoline() noexcept {
+			trampoline_ = true;
 		}
 
 		inline void
@@ -175,6 +185,11 @@ namespace Invader {
 
 		for (int i = 1; i < argc_; i++) {
 
+			if (_tcscmp(argv_[i], _T("-trampoline")) == 0) {
+				opt.set_trampoline();
+				_tprintf(_T("-trampoline is not implemnted yet :(\r\n"));
+				exit(1);
+			}
 
 			if (_tcscmp(argv_[i], _T("-freeze")) == 0) {
 				opt.set_freeze();
@@ -319,7 +334,7 @@ int _tmain(int argc, const TCHAR** argv) {
 			return -1;
 		}
 		_tprintf(_T("[+]. Process with pid:%d opened.\r\n"), opt.pid());
-		//suspend main thread ?!?
+
 	}
 	
 	dbg.attach(inv.pid());
@@ -328,6 +343,7 @@ int _tmain(int argc, const TCHAR** argv) {
 
 	if (dbg.active() == FALSE) {
 		_tprintf(_T("[+]. Unable to attach to the process. error:0x%x\r\n"), GetLastError());
+		return -1;
 	}
 
 	if (inv.creation_flag() & CREATE_SUSPENDED) {
@@ -339,6 +355,8 @@ int _tmain(int argc, const TCHAR** argv) {
 	unsigned char bp = 0;
 	unsigned char bp_incorrect = 1;
 	const void* remote_LdrLoadDll_addr = nullptr;
+
+	int main_ret = -1;
 
 	while (true) {
 
@@ -362,29 +380,34 @@ int _tmain(int argc, const TCHAR** argv) {
 
 			if (Invader::prepare_stub(opt.dll().c_str(), const_cast<VOID*>(remote_LdrLoadDll_addr), &Invader::x64_stub[0], sizeof(Invader::x64_stub)) != 1) {
 				_tprintf(_T("[+]. Rreparing stub fail.\r\n"));
-				//clean
+				break;
 			}
 
 			//Invader::stub_test(opt.dll().c_str(), const_cast<void*>(remote_LdrLoadDll_addr), &Invader::x64_stub[0], sizeof(Invader::x64_stub)); //03.08.2022 - działa
 
-			if (inv.read_memory(inv.process(), exc.addr, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
-				_tprintf(_T("[+]. Read process memory fail.\r\n"));
-				//clean
-			}
+			if (opt.trampoline() == true) {  //future 
 
-			//stack_walk;
-
-			DWORD old_protection;
-			if (inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_stub), PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
-				_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"),GetLastError());
-				//clean
 			}
-			if (inv.write_memory(inv.process(), exc.addr, Invader::x64_stub, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
-				_tprintf(_T("[+]. Replacing code fail error: 0x%x.\r\n"), GetLastError());
-				//clean
-			}
-			FlushInstructionCache(inv.process(), exc.addr, sizeof(Invader::x64_stub));
+			else {
 
+				if (inv.read_memory(inv.process(), exc.addr, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
+					_tprintf(_T("[+]. Read process memory fail.\r\n"));
+					break;
+				}
+
+				//stack_walk;
+
+				DWORD old_protection;
+				if (inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_stub), PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
+					_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"), GetLastError());
+					break;
+				}
+				if (inv.write_memory(inv.process(), exc.addr, Invader::x64_stub, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
+					_tprintf(_T("[+]. Replacing code fail error: 0x%x.\r\n"), GetLastError());
+					break;
+				}
+				FlushInstructionCache(inv.process(), exc.addr, sizeof(Invader::x64_stub));
+			}
 		}
 		else if (bp < bp_incorrect) {
 			_tprintf(_T(
@@ -403,7 +426,7 @@ int _tmain(int argc, const TCHAR** argv) {
 					HANDLE th = OpenThread(THREAD_ALL_ACCESS, FALSE, exc.tid);
 					if (th == NULL) {
 						_tprintf(_T("[+]. Unfortunately in can't open thread.\r\n"));
-						//clean
+						break;
 					}
 					SuspendThread(th);
 					_tprintf(_T("[+]. Thread with id:%d is now frozen.\r\n"), exc.tid);
@@ -416,7 +439,7 @@ int _tmain(int argc, const TCHAR** argv) {
 				        exc.addr);
 			if (inv.write_memory(inv.process(), exc.addr, inv.memory(), sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 				_tprintf(_T("[!]. Restoring original code fail.\r\n"));
-				//clean
+				break;
 			}
 			FlushInstructionCache(inv.process(), exc_addr, sizeof(Invader::x64_stub));
 			_tprintf(_T("[+]. Original code restored.\r\n"));
@@ -427,6 +450,7 @@ int _tmain(int argc, const TCHAR** argv) {
 
 			//stack_walk64
 			dbg.ready();
+			main_ret = 1;
 			break;
 
 		}
@@ -442,6 +466,6 @@ int _tmain(int argc, const TCHAR** argv) {
 	         ));
 	//while (true);
 
-	return 0;
+	return main_ret;
 
 }

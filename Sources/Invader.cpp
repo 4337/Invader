@@ -44,7 +44,7 @@ void
 Invader::Debugger::intern_loop(BOOL kill) noexcept {
 
 	if (intern_attach(pid_) == FALSE) {
-		_tprintf(_T("DUUUUUUUUUUUPA error:0x%x\r\n"),GetLastError());
+		_tprintf(_T("DUUUUUUUUUUUPA error:0x%x pid:%d\r\n"),GetLastError(),pid_);
 		return;
 	}
 
@@ -148,6 +148,7 @@ Invader::Debugger::except_info() const noexcept {
 
 BOOL Invader::Invader2::open(DWORD pid) noexcept {
 	proc_ = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	pid_ = pid;
 	return (proc_ != NULL) ? TRUE : FALSE;
 }
 
@@ -223,10 +224,6 @@ bool Invader::Invader2::remote_addresses(const void* proc_addr) noexcept {
 	if (DbgBreakPoint_proc == nullptr) {
 		return false;
 	}
-
-	//if (DbgBreakPoint_proc != proc_addr) { //"DbgBreakPointWithStatus"  //trzeba zmieniæ z bezwzglêdnego na przesuniêcie 
-		//DbgBreakPoint_proc = reinterpret_cast<char*>(const_cast<void*>(proc_addr));    //little bit lame -> NtQueryProcessInformation
-	//}
 
 	INT64 DbgBreakPoint_offset = DbgBreakPoint_proc - reinterpret_cast<char*>(ntdll);
 	Remote_ntdll_base_addr = reinterpret_cast<void*>(reinterpret_cast<INT64>(proc_addr) - DbgBreakPoint_offset);
@@ -309,10 +306,23 @@ Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned cha
 
 }
 
-bool 
-Invader::Invader2::do_i_have_privilege() noexcept {
+Invader::Invader2::~Invader2() {
+	if (memory_ != nullptr) {
+		delete[] memory_;
+	}
+	if (thread_ != NULL) {
+		CloseHandle(thread_);
+	}
+	if (proc_ != NULL) {
+		CloseHandle(proc_);
+	}
+}
 
-	//
-	return false;
-
+Invader::Debugger::~Debugger() {
+	if (mod_ready_ != NULL) {
+		CloseHandle(mod_ready_);
+	}
+	if (wait_4_event_ != NULL) {
+		CloseHandle(wait_4_event_);
+	}
 }

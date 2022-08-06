@@ -80,6 +80,8 @@ export {
 
 		public:
 
+			  ~Debugger();
+
 			   Debugger() noexcept : prot_(), dbg_loop_thread_() {
 				   intern_init(-1);
 			   }
@@ -207,6 +209,7 @@ export {
 
 		public:
 
+			~Invader2();
 			/// <summary>
 			/// 
 			/// </summary>

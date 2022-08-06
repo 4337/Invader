@@ -1,7 +1,4 @@
-﻿/// TODO:
-/// Destructors && cleaning 
-
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <tchar.h>
 #include <string>
 #include <filesystem>

@@ -52,7 +52,7 @@ Teoretycznie wystarczy, więc zmienić prawa dostępu do pamięci wskazywanej pr
 zapisać pod tym adresem własny kod i przywrócić wykonanie procesu.
 <h5>Dlaczego EXCEPTION_BREAKPOINT?</h5>
 Funkcje Dbg* z ntdll są dość rzadko wykorzystywane podczas normalnego wykonania aplikacji.<br/> 
-DbgBreakPoint aktualnie znajduje się w obszarze pliku ntdll.dll, w którym mamy stosunkowo dużo miejsca na nasz kod. <br/>
+DbgBreakPoint aktualnie znajduje się w obszarze pliku ntdll.dll, w którym mamy stosunkowo dużo miejsca na nasz kod.
 W innych przypadkach moglibyśmy nadpisać na tyle istotne dla naszego kodu procedury, że nie mógłby on działać, <br/>
 np. gdybyśmy nadpisali fragmenty funkcji LdrLoadDll to nie moglibyśmy z niej skorzystać. <br/>
 Funkcję DbgBreakPoint możemy wywołać w zdalnym procesie na żądanie przy pomocy DebugBreakProcess. <br/>

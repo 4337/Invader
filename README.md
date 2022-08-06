@@ -103,7 +103,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 CreateToolhelp32Snapshot i Thread32First jest brzydki i nie chce mi się go pisać.
 	 <br/>
 	 Kolejny pomysł, który może przyczynić się do lepszej stabilizacji, to umieszczenie pod adresem ntdll!DbgBreakPoint, "trampoliny", skoku bezwarunkowego do 
-	 kodu (stub), który zostanie umieszczony w mniej używanej przez atakowany proces lokalizacji pamięci, np. w obszarze funkcji startowych wskazwyanym przez 
+	 kodu (stub), który zostanie umieszczony w mniej używanej przez atakowany proces lokalizacji pamięci, np. w obszarze funkcji startowych wskazywanym przez 
 	 _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint. To znacznie zredukuje rozmiar modyfikowanego kodu biblioteki ntdll.dll.
 	 </li>
 	 <li>

@@ -91,6 +91,12 @@ Invader::Debugger::intern_loop(BOOL kill) noexcept {
 								SetEvent(wait_4_event_);
 
 							break;
+							case CREATE_THREAD_DEBUG_EVENT:
+
+							break;
+							case LOAD_DLL_DEBUG_EVENT:
+
+							break;
 					}
 				break;
 		}

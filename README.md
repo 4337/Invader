@@ -104,7 +104,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 <br/>
 	 Kolejny pomysł, który może przyczynić się do lepszej stabilizacji, to umieszczenie pod adresem ntdll!DbgBreakPoint, "trampoliny", skoku bezwarunkowego do 
 	 kodu (stub), który zostanie umieszczony w mniej używanej przez atakowany proces lokalizacji pamięci, np. w obszarze funkcji startowych wskazywanym przez 
-	 _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint. To znacznie zredukuje rozmiar modyfikowanego kodu biblioteki ntdll.dll.
+	 _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint lub w przestrzeni między sekcjami. To znacznie zredukuje rozmiar modyfikowanego kodu biblioteki ntdll.dll.
 	 </li>
 	 <li>
 	 Stan pamięci procesu (rejestry, stos) - <b>rozwiązany</b>.<br/>

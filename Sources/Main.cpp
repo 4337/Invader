@@ -377,6 +377,11 @@ _T("[+]. Target application wont die.\r\n")
 
 	bool use_trampoline = opt.trampoline();
 
+	if (opt.dontdie()) {
+		_tprintf(_T("[+]. Option -dontdie is set, attacked process will not die! (not on my watch :D)\r\n"));
+		inv.suspend_main_thread();
+	}
+
 	while (bp <= max_bp) {
 
 		dbg.wait();

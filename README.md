@@ -134,9 +134,10 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <h3> Todo: </h3>
 <ul>
 <li><s>Implemntacja opcji -pid - co nastąpi zanim kur zapieje trzy razy i Marcin pojedzie na wakacje.</s></li>
-<li>Implementacja opcji -trampoline - :)</li>
+<li><s>Implementacja opcji -trampoline - :)</s></li>
 <li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz. 🤘</li>
-<li>Destruktory i sprzątanie.</li>
+<li><s>Destruktory i sprzątanie.</s></li>
+<li>Refactoring kodu - bliżej nieokreślona przyszłość (z naciskiem na nieokreślona).</li>
 </ul>
 
 <h3> Source code (x64 PoC) </h3>
@@ -155,7 +156,7 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <br/>
 <img src="./SS/4.png"/>	
 <br/>
-<img src="./SS/5.png"/>	
+<img src="./SS/6.png"/>	
 
 <br/>
 <br/>

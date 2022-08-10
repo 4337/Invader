@@ -169,12 +169,14 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <!--
 <img src="./SS/x64_to_x32_WOW_new_process.png"/>
 -->
+<!--
 <br/>
 <img src="./SS/2.png"/>
 <br/>
 <img src="./SS/3.png"/>	
 <br/>
 <img src="./SS/4.png"/>	
+-->
 <br/>
 <img src="./SS/6.png"/>	
 

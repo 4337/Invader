@@ -129,9 +129,9 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
      środowiska np. svchost.exe.
 </li>
 <li><b>-freeze</b> - Zamraża wątki powodujące wyjątek dostępu do pamięci w atakowanym procesie.</li>
-<li><b>-trampoline (bardzo stablina)</b> - Umieszcza wstrzykiwany kod w obszarze funkcji startowych atakowanego procesu, a pod adresem ntdll!DbgBreakPoint umieszcza tylko skok do 
-     _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint.
-	 Aktualnie nie działa z 32-bitowymi aplikacjami WoW64, ponieważ wykonanie skoku do 32-bitowego kodu z kodu 64-bitowego wymaga wykorzytsania 
+<li><b>-trampoline (bardzo stablina)</b> - Umieszcza wstrzykiwany kod w obszarze funkcji startowych atakowanego procesu, a pod adresem ntdll!DbgBreakPoint
+      umieszcza tylko skok do _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint.
+	 Aktualnie nie działa z 32-bitowymi aplikacjami WoW64, ponieważ wykonanie skoku do 32-bitowego kodu z kodu 64-bitowego wymaga wykorzystania 
 	 selektorów segmentów.
 </li>
 <li><b>-cave (nie zaimplementowana)</b> - Umieszcza wstrzykiwany kod w przestrzeni między sekcjami kodu biblioteki ntdll.dll, również jest bardzo stabilna i umożliwia 

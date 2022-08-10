@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <winternl.h>
 #include <psapi.h>
 #include <thread>
 #include <mutex>
@@ -44,7 +45,6 @@ void
 Invader::Debugger::intern_loop(BOOL kill) noexcept {
 
 	if (intern_attach(pid_) == FALSE) {
-		_tprintf(_T("DUUUUUUUUUUUPA error:0x%x pid:%d\r\n"),GetLastError(),pid_);
 		return;
 	}
 
@@ -92,15 +92,14 @@ Invader::Debugger::intern_loop(BOOL kill) noexcept {
 
 							break;
 							case CREATE_THREAD_DEBUG_EVENT:
-
 							break;
 							case LOAD_DLL_DEBUG_EVENT:
-
 							break;
 					}
 				break;
 		}
 
+		//SetEvent(wait_4_event_);
 		ContinueDebugEvent(event.dwProcessId, event.dwThreadId, status);   
 
 	}
@@ -152,14 +151,14 @@ Invader::Debugger::except_info() const noexcept {
 /// 
 /// 
 
-BOOL Invader::Invader2::open(DWORD pid) noexcept {
+BOOL Invader::Invader2::open(DWORD pid) noexcept  {
 	proc_ = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 	pid_ = pid;
 	return (proc_ != NULL) ? TRUE : FALSE;
 }
 
-Invader::Invader2::Invader2(DWORD pid) noexcept : creation_flag_(0), pid_(pid), tid_(0), thread_(NULL),
-                            memory_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
+Invader::Invader2::Invader2(DWORD pid,  bool is_x64) noexcept : x64(is_x64), creation_flag_(0), pid_(pid), tid_(0), thread_(NULL),
+                            stub_(nullptr), trampoline_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
 	open(pid);
 }
 
@@ -184,21 +183,35 @@ BOOL Invader::Invader2::create(const string_t& app_path, DWORD flag) noexcept {
 
 }
 
-Invader::Invader2::Invader2(const string_t& app_path, DWORD flag) noexcept : proc_(NULL), creation_flag_(flag),
-                            memory_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
+Invader::Invader2::Invader2(const string_t& app_path, DWORD flag, bool is_x64) noexcept : x64(is_x64), proc_(NULL), creation_flag_(flag),
+                            stub_(nullptr), trampoline_(nullptr), LdrLoadDll_offset(0), Remote_LdrLoadDll_addr(nullptr), Remote_ntdll_base_addr(nullptr) {
 
 	create(app_path, flag);
 
 }
 
 bool 
-Invader::Invader2::intern_alloc(size_t size) noexcept(false) {
-	if (memory_ != nullptr) {
-		delete[] memory_;
+Invader::Invader2::intern_alloc_trampoline(size_t size) noexcept(false) {
+	if (trampoline_ != nullptr) {
+		delete[] trampoline_;
 	}
 
-	memory_ = new unsigned char[size];
-	if (memory_ == nullptr) {
+	trampoline_ = new unsigned char[size];
+	if (trampoline_ == nullptr) {
+		return false;
+	}
+
+	return true;
+}
+
+bool 
+Invader::Invader2::intern_alloc_stub(size_t size) noexcept(false) {
+	if (stub_ != nullptr) {
+		delete[] stub_;
+	}
+
+	stub_ = new unsigned char[size];
+	if (stub_ == nullptr) {
 		return false;
 	}
 
@@ -239,13 +252,30 @@ bool Invader::Invader2::remote_addresses(const void* proc_addr) noexcept {
 
 }
 
-int Invader::Invader2::read_memory(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept {
-	if (!intern_alloc(size)) {
+int Invader::Invader2::read_memory_tarmpoline(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept {
+	if (!intern_alloc_trampoline(size)) {
 		return -1;
 	}
 
 	SIZE_T num_bytes;
-	if (ReadProcessMemory(proc, addr, memory_, size, &num_bytes) == FALSE) {
+	if (ReadProcessMemory(proc, addr, trampoline_, size, &num_bytes) == FALSE) {
+		return 0;
+	}
+
+	if (num_bytes > INT_MAX) {
+		return -1;
+	}
+
+	return static_cast<int>(num_bytes);
+}
+
+int Invader::Invader2::read_memory_stub(HANDLE proc, LPCVOID addr, SIZE_T size) noexcept {
+	if (!intern_alloc_stub(size)) {
+		return -1;
+	}
+
+	SIZE_T num_bytes;
+	if (ReadProcessMemory(proc, addr, stub_, size, &num_bytes) == FALSE) {
 		return 0;
 	}
 
@@ -269,8 +299,8 @@ SIZE_T Invader::Invader2::write_memory(HANDLE proc, LPVOID addr, const unsigned 
 ///
 
 int
-Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned char* stub, size_t stub_size) noexcept {
-
+Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned char* stub, size_t stub_size,void* DbgBreakPoint, bool trampoline) noexcept {
+	
 	size_t len = wcslen(dll_path);
 	if ((len + 1) * sizeof(WCHAR) >= 160) {//0x7ffe) {
 		return -1;
@@ -292,6 +322,9 @@ Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned cha
 	*in_stub_len_ptr = max_path_len;
 	INT64 LdrLoadDll_addr_le = _byteswap_uint64(reinterpret_cast<INT64>(LdrLoadDll_addr));
 
+	//*(in_stub_len_ptr + 1) = path_len;
+	//*(in_stub_len_ptr + 2) = max_path_len;
+
 	INT64* in_stub_proc_addr_ptr = reinterpret_cast<INT64*>(memchr(stub, 0x77777777, stub_size));
 	if (in_stub_proc_addr_ptr == nullptr) {
 		return 0;
@@ -307,15 +340,49 @@ Invader::prepare_stub(const WCHAR* dll_path, VOID* LdrLoadDll_addr, unsigned cha
 	in_stub_path_ptr += sizeof(void*);
 
 	memcpy(reinterpret_cast<void*>(in_stub_path_ptr), dll_path, len * sizeof(WCHAR));
+	unsigned char* epilog = &stub[stub_size - 14];
+
+	if (trampoline == false) {
+
+		epilog[0] = 0xE9;
+		epilog[1] = 0xE1;
+		epilog[2] = 0xFE;
+		epilog[3] = 0xFF;
+		epilog[4] = 0xFF;
+
+	}
+	else {
+
+		stub[0] = 0x90;
+
+		epilog[0] = 0xCC;
+
+		epilog[1] = 0x90;
+		epilog[2] = 0x48;   
+		epilog[3] = 0xB8;
+
+		INT64* jmp_ptr =  reinterpret_cast<INT64*>(&epilog[4]);   //dzia³a nie trza psuæ
+		*jmp_ptr = reinterpret_cast<INT64>(DbgBreakPoint); 
+		epilog[12] = 0xFF;
+	    epilog[13] = 0xE0;
+		epilog[14] = 0x90;
+
+
+	}
 
 	return 1;
 
 }
 
 Invader::Invader2::~Invader2() {
-	if (memory_ != nullptr) {
-		delete[] memory_;
+	if (stub_ != nullptr) {
+		delete[] stub_;
 	}
+
+	if (trampoline_ != nullptr) {
+		delete[] trampoline_;
+	}
+
 	if (thread_ != NULL) {
 		CloseHandle(thread_);
 	}
@@ -331,4 +398,44 @@ Invader::Debugger::~Debugger() {
 	if (wait_4_event_ != NULL) {
 		CloseHandle(wait_4_event_);
 	}
+}
+
+unsigned long long
+Invader::Invader2::remote_base_addr_main_module() noexcept {  
+
+	ULONG ret_len;
+	PROCESS_BASIC_INFORMATION proc_inf = { 0 };
+	if (!NT_SUCCESS(NtQueryInformationProcess(proc_, ProcessBasicInformation, &proc_inf, sizeof(PROCESS_BASIC_INFORMATION), &ret_len))) {
+		return 0;
+	}
+	const unsigned char* peb = reinterpret_cast<const unsigned char*>(proc_inf.PebBaseAddress) + 0x10;
+	const void* image_base = nullptr;
+	if (!ReadProcessMemory(proc_, peb, &image_base, sizeof(const void*), NULL)) {
+		return 0;
+	}
+	return reinterpret_cast<unsigned long long>(image_base);
+
+}
+
+unsigned long long
+Invader::Invader2::remote_entry_point() noexcept {
+
+	unsigned long long image_base = remote_base_addr_main_module();
+	if (image_base == 0) {
+		return 0;
+	}
+
+	constexpr size_t head_size = sizeof(IMAGE_NT_HEADERS64) + sizeof(IMAGE_DOS_HEADER);
+	unsigned char head[head_size] = { 0 };
+	if (!ReadProcessMemory(proc_, reinterpret_cast<LPCVOID>(image_base), head, head_size, NULL)) {
+		return 0;
+	}
+
+	IMAGE_DOS_HEADER* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(head);
+	IMAGE_OPTIONAL_HEADER64* opt = reinterpret_cast<IMAGE_OPTIONAL_HEADER64*>(head + dos->e_lfanew + sizeof(IMAGE_FILE_HEADER) +sizeof(DWORD));
+
+	unsigned long long entry_point = image_base + opt->AddressOfEntryPoint;
+
+	return entry_point;
+
 }

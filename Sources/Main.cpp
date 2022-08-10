@@ -51,6 +51,7 @@ namespace Invader {
 			     "-dontdie  - do not let the attacked process die\r\n"
 			     "-freeze   - freeze thread that caused accesss violation\r\n"
 			     "-trampoline - write stub at _IMAGE_OPTIONAL_HEADER.AddressOfEntryPoint and replace ntdll!DbgBreakPoint by jmp/call instruction\r\n"
+			     "-cave - put stub in the ntdll.dll code cave\r\n"
 			     "----------------------------------------------------------------------\r\n"
 		         ));
 	}
@@ -62,7 +63,8 @@ namespace Invader {
 		NOT_ENOUGH_ARGS,
 		SIMULTANEOUSLY_OPT,
 		CONVERSION_ERROR,
-		DLL_PATH_2_LONG
+		DLL_PATH_2_LONG,
+	    OPT_UNIMPLEMENTED
 	};
 
 	class Options {
@@ -70,6 +72,7 @@ namespace Invader {
 		bool dontdie_;
 		bool freeze_;
 		bool trampoline_;
+		bool cave_;
 		int error_;
 		DWORD pid_;
 		Invader::string_t app_;
@@ -78,6 +81,16 @@ namespace Invader {
 	public:
 		Options() noexcept : error_(NO_A_ERROR), pid_(-1), app_(_T("")), dll_(L""), dontdie_(false), freeze_(false), trampoline_(false) {
 		}
+
+		inline const bool cave() const noexcept {
+			return cave_;
+		}
+
+		inline void
+		set_cave() noexcept {
+			cave_ = true;
+		}
+
 
 		inline const bool freeze() const noexcept {
 			return freeze_;
@@ -183,6 +196,13 @@ namespace Invader {
 		namespace fs = std::filesystem;
 
 		for (int i = 1; i < argc_; i++) {
+
+			if (_tcscmp(argv_[i], _T("-cave")) == 0) {
+				_tprintf(_T("[!]. Option -cave is not impleneted yet :(."));
+				opt.error(OPT_UNIMPLEMENTED);
+				//opt.set_cave();
+				break;
+			}
 
 			if (_tcscmp(argv_[i], _T("-trampoline")) == 0) {
 				opt.set_trampoline();
@@ -498,13 +518,14 @@ _T("[+]. Target application wont die.\r\n")
 				unsigned char fake_tramp[sizeof(Invader::x64_trampoline)] = { 0x66 };
 				inv.write_memory(inv.process(), addr, &fake_tramp[0], sizeof(Invader::x64_trampoline));
 				*/
-
+				
 				if (inv.write_memory(inv.process(), addr, inv.trampoline(), 
 					                 sizeof(Invader::x64_trampoline)) != sizeof(Invader::x64_trampoline)) {
 				   _tprintf(_T("[!]. Restoring original code fail.\r\n"));
 				   break;
 				}
 				FlushInstructionCache(inv.process(), addr, sizeof(Invader::x64_trampoline));
+				
 				//DebugBreakProcess(inv.process());
 			}
 			else {

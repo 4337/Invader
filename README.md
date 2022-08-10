@@ -125,7 +125,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 <li><b>-dll</b> - Definiuje ścieżkę do biblioteki dll którą chcemy załadować do atakowanego procesu.</li>
 <li><b>-app</b> - Definiuje ścieżkę do aplikacji którą chcemy zaatakować.</li>
 <li><b>-pid</b> - Definiuje PID procesu który chcemy zaatakować.</li>
-<li> -dontdie - Opcja nie pozwala na zakończenie atakowanego procesu - przydatna w przyapdku aplikacji które wymagają określonych argumentów lini poleceń i 
+<li><b>-dontdie</b> - Opcja nie pozwala na zakończenie atakowanego procesu - przydatna w przyapdku aplikacji, które wymagają określonych argumentów lini poleceń i 
      środowiska np. svchost.exe.
 </li>
 <li><b>-freeze</b> - Zamraża wątki powodujące wyjątek dostępu do pamięci w atakowanym procesie.</li>
@@ -134,7 +134,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 Aktualnie nie działa z 32-bitowymi aplikacjami WoW64, ponieważ wykonanie skoku do 32-bitowego kodu z kodu 64-bitowego wymaga wykorzystania 
 	 selektorów segmentów.
 </li>
-<li><b>-cave (nie zaimplementowana)</b> - Umieszcza wstrzykiwany kod w przestrzeni między sekcjami kodu biblioteki ntdll.dll, również jest bardzo stabilna i umożliwia 
+<li><b>-cave (nie zaimplementowana)</b> - Umieszcza wstrzykiwany kod w przestrzeni między sekcjami biblioteki ntdll.dll, również jest bardzo stabilna i umożliwia 
      atakowanie 32-bitowych aplikacji WoW64 za pomocą 64-bitowego kodu. 
 </li>
 </ul>

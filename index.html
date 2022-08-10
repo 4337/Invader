@@ -138,6 +138,7 @@ Yes you can! Jeśli posiadasz odpowiednie uprawnienia w systemie ;D
 <li>Ostateczna aktualizacja tekstu, który czytasz skoro to czytasz. 🤘</li>
 <li><s>Destruktory i sprzątanie.</s></li>
 <li>Refactoring kodu - bliżej nieokreślona przyszłość (z naciskiem na nieokreślona).</li>
+<li>Implemntacja opcji -cave.</li>
 </ul>
 
 <h3> Source code (x64 PoC) </h3>

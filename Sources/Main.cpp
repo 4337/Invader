@@ -377,11 +377,6 @@ _T("[+]. Target application wont die.\r\n")
 
 	bool use_trampoline = opt.trampoline();
 
-	if (opt.dontdie()) {
-		_tprintf(_T("[+]. Option -dontdie is set, attacked process will not die! (not on my watch :D)\r\n"));
-		inv.suspend_main_thread();
-	}
-
 	while (bp <= max_bp) {
 
 		dbg.wait();
@@ -421,6 +416,11 @@ _T("[+]. Target application wont die.\r\n")
 			addr = exc.addr;
 			inv.remote_addresses(exc.addr);
 			remote_LdrLoadDll_addr = inv.remote_LdrLoadDll_addr();
+
+			if (opt.dontdie()) {
+				_tprintf(_T("[+]. Option -dontdie is set, attacked process will not die! (not on my watch :D)\r\n"));
+				inv.suspend_main_thread();
+			}
 
 			_tprintf(_T("[+]. Correct breakpoint has been reached.\r\n"
 				"[-]. address: 0x%p\r\n"

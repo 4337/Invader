@@ -120,7 +120,7 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
   </li>
 </ul>
 
-<h3> Opcje </h3>
+<h3>Opcje:</h3>
 <ul>
 <li> -dll - Definiuje ścieżkę do biblioteki dll którą chcemy załadować do atakowanego procesu.</li>
 <li> -app - Definiuje ścieżkę do aplikacji którą chcemy zaatakować.</li>

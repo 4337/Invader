@@ -122,9 +122,9 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 
 <h3>Opcje:</h3>
 <ul>
-<li><b>-dll</b> - Definiuje ścieżkę do biblioteki dll którą chcemy załadować do atakowanego procesu.</li>
-<li><b>-app</b> - Definiuje ścieżkę do aplikacji którą chcemy zaatakować.</li>
-<li><b>-pid</b> - Definiuje PID procesu który chcemy zaatakować.</li>
+<li><b>-dll</b> - Definiuje ścieżkę do biblioteki dll, którą chcemy załadować do atakowanego procesu.</li>
+<li><b>-app</b> - Definiuje ścieżkę do aplikacji, którą chcemy zaatakować.</li>
+<li><b>-pid</b> - Definiuje PID procesu, który chcemy zaatakować.</li>
 <li><b>-dontdie</b> - Opcja nie pozwala na zakończenie atakowanego procesu - przydatna w przyapdku aplikacji, które wymagają określonych argumentów lini poleceń i 
      środowiska np. svchost.exe.
 </li>

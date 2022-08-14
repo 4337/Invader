@@ -134,8 +134,8 @@ a następnie przeanalizować ich przydatność i wpływ na wykonanie naszego kod
 	 Aktualnie nie działa z 32-bitowymi aplikacjami WoW64, ponieważ wykonanie skoku do 32-bitowego kodu z kodu 64-bitowego wymaga wykorzystania 
 	 selektorów segmentów.
 </li>
-<li><b>-cave (nie zaimplementowana)</b> - Umieszcza wstrzykiwany kod w przestrzeni między sekcjami biblioteki ntdll.dll, również jest bardzo stabilna i umożliwia 
-     atakowanie 32-bitowych aplikacji WoW64 za pomocą 64-bitowego kodu. 
+<li><b>-cave (nie zaimplementowana)</b> - Umieszcza wstrzykiwany kod w wolnej przestrzeni między sekcjami biblioteki ntdll.dll załadowanej do pamięci atakowanego procesu, również jest bardzo stabilna i umożliwia 
+     atakowanie 32-bitowych aplikacji WoW64 za pomocą 64-bitowego kodu. W przypadku 64-bitowych systemów operacyjnych, jest to 64-bitowa wersja biblioteki ntdll.dll.
 </li>
 </ul>
 

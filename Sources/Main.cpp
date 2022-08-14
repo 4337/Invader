@@ -368,7 +368,7 @@ _T("[+]. Target application wont die.\r\n")
 		inv.resume_main_thread();
 	}
 
-	bool loop = true;
+	bool error = false;
 	void* addr = nullptr;
 	unsigned char bp = 0;
 	unsigned char max_bp = 2;
@@ -377,7 +377,7 @@ _T("[+]. Target application wont die.\r\n")
 
 	bool use_trampoline = opt.trampoline();
 
-	while (bp <= max_bp) {
+	while (bp <= max_bp && !error) {
 
 		dbg.wait();
 
@@ -434,6 +434,7 @@ _T("[+]. Target application wont die.\r\n")
 			if (Invader::prepare_stub(opt.dll().c_str(), const_cast<VOID*>(remote_LdrLoadDll_addr), &Invader::x64_stub[0],
 				sizeof(Invader::x64_stub), addr, use_trampoline) != 1) {
 				_tprintf(_T("[+]. Preparing stub fail.\r\n"));
+				error = true;
 				break;
 			}
 
@@ -450,17 +451,20 @@ _T("[+]. Target application wont die.\r\n")
 				unsigned long long remote_entry_addr = inv.remote_entry_point();
 				if (remote_entry_addr == 0) {
 					_tprintf(_T("[+]. Gaining remote entry point address fail.\r\n"));
+					error = true;
 					break;
 				}
 				_tprintf(_T("[+]. remote entry point address: 0x%I64X\r\n"), remote_entry_addr);
 				if (Invader::prepare_trampoline(reinterpret_cast<const void*>(remote_entry_addr), Invader::x64_trampoline,
 					sizeof(Invader::x64_trampoline)) != 1) {
 					_tprintf(_T("[+]. Preparing trampoline fail.\r\n"));
+					error = true;
 					break;
 				}
 				if (inv.read_memory_stub(inv.process(), reinterpret_cast<const void*>(remote_entry_addr),
 					sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 					_tprintf(_T("[+]. Read process memory (entry_point) fail.\r\n"));
+					error = true;
 					break;
 				}
 				if (inv.read_memory_tarmpoline(inv.process(), exc.addr, sizeof(Invader::x64_trampoline)) != sizeof(Invader::x64_trampoline)) {
@@ -471,21 +475,25 @@ _T("[+]. Target application wont die.\r\n")
 				if (inv.protection(inv.process(), reinterpret_cast<void*>(remote_entry_addr), sizeof(Invader::x64_stub),
 					PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
 					_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				if (inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_trampoline),
 					PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
 					_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				if (inv.write_memory(inv.process(), exc.addr, Invader::x64_trampoline,
 					sizeof(Invader::x64_trampoline)) != sizeof(Invader::x64_trampoline)) {
 					_tprintf(_T("[+]. Replacing code (trampoline) fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				if (inv.write_memory(inv.process(), reinterpret_cast<void*>(remote_entry_addr),
 					Invader::x64_stub, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 					_tprintf(_T("[+]. Replacing code (stub) fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				FlushInstructionCache(inv.process(), exc.addr, sizeof(Invader::x64_trampoline));
@@ -494,16 +502,19 @@ _T("[+]. Target application wont die.\r\n")
 			else {
 				if (inv.read_memory_stub(inv.process(), exc.addr, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 					_tprintf(_T("[+]. Read process memory (ntdll!DbgBreakPoint) fail.\r\n"));
+					error = true;
 					break;
 				}
 
 				DWORD old_protection;
 				if (inv.protection(inv.process(), exc.addr, sizeof(Invader::x64_stub), PAGE_EXECUTE_READWRITE, &old_protection) == FALSE) {
 					_tprintf(_T("[+]. Change memory protection fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				if (inv.write_memory(inv.process(), exc.addr, Invader::x64_stub, sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 					_tprintf(_T("[+]. Replacing code fail error: 0x%x.\r\n"), GetLastError());
+					error = true;
 					break;
 				}
 				FlushInstructionCache(inv.process(), exc.addr, sizeof(Invader::x64_stub));
@@ -527,6 +538,7 @@ _T("[+]. Target application wont die.\r\n")
 				if (inv.write_memory(inv.process(), addr, inv.trampoline(), 
 					                 sizeof(Invader::x64_trampoline)) != sizeof(Invader::x64_trampoline)) {
 				   _tprintf(_T("[!]. Restoring original code fail.\r\n"));
+				   error = true;
 				   break;
 				}
 				FlushInstructionCache(inv.process(), addr, sizeof(Invader::x64_trampoline));
@@ -539,6 +551,7 @@ _T("[+]. Target application wont die.\r\n")
 
 				if (inv.write_memory(inv.process(), addr, inv.stub(), sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
 					_tprintf(_T("[!]. Restoring original code fail.\r\n"));
+					error = true;
 					break;
 				}
 				FlushInstructionCache(inv.process(), addr, sizeof(Invader::x64_stub));
@@ -554,6 +567,7 @@ _T("[+]. Target application wont die.\r\n")
 			 if (inv.write_memory(inv.process(), reinterpret_cast<void*>(inv.remote_entry_point()), 
 				                  inv.stub(), sizeof(Invader::x64_stub)) != sizeof(Invader::x64_stub)) {
                  _tprintf(_T("[!]. Restoring original code fail.\r\n"));
+				 error = true;
        	         break;
              }
 			 FlushInstructionCache(inv.process(), reinterpret_cast<void*>(inv.remote_entry_point()), sizeof(Invader::x64_stub));
@@ -572,7 +586,7 @@ _T("[+]. Target application wont die.\r\n")
 
 	dbg.stop();
 
-	if (exc._exception_code != EXCEPTION_ACCESS_VIOLATION || opt.freeze()) {
+	if ((exc._exception_code != EXCEPTION_ACCESS_VIOLATION || opt.freeze()) && !error) {
 		_tprintf(_T("[+]. Code injection done with SUSCCESS.\r\n"
 			        "[+]. Detaching process from debugger is done, process should be still alive.\r\n"
 		));

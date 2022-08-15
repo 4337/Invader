@@ -43,7 +43,7 @@ Obie te procedury realizują to samo zadanie, wywołują przerwanie INT 0x03 (EX
 kiedy do procesu podłączony jest debugger podobnie jak inne zdarzenia/wyjątki debuggowania będzie obsłużone przez debugger.
 Istotna różnica między DbgBreakPointWithStatus, a DbgBreakPoint jest taka, 
 że ta pierwsza nie jest eksportowana przez bibliotekę ntdll.dll i trudno na jej podstawie obliczyć adres bazowy biblioteki ntdll.dll w sposób "mało hałaśliwy".
-Poza tym DbgBreakPointWithStatus zwraca wartość, a DbgBreakPoint nie.<br/>
+Poza tym DbgBreakPointWithStatus przekazuje wartość, a DbgBreakPoint nie.<br/>
 Kiedy w debuggowanej aplikacji występuje wyjątek, debugger otrzymuje na jego temat szereg informacji, <br/>
 w których zawarty jest między innymi adres, pod którym wyjątek wystąpił. <br/>
 Jest to jeden z kluczowych elementów tej techniki, ponieważ ten adres z naszej perspektywy to wartość wskaźnika rozkazów (RIP/EIP) w atakowanym procesie,
